@@ -54,6 +54,47 @@ sprite_new(VALUE rcv, SEL sel, VALUE name)
     return rb_class_wrap_new((void *)sprite, rcv);
 }
 
+/// @method #create_with_image(data, len)
+/// Creates a sprite from +data+ stream buffer image data and +len+ length
+/// @param data [String] image data stream buffer
+/// @param len [Integer] data length
+/// @return [Sprite]
+
+static VALUE
+sprite_create_with_image(VALUE rcv, SEL sel, VALUE data, VALUE len)
+{
+  //cocos2d::log("Hello!");
+  cocos2d::Sprite *sprite = NULL;
+  cocos2d::Texture2D *texture = new cocos2d::Texture2D();
+  cocos2d::Image *image = new cocos2d::Image();
+
+  //Now create Sprite from downloaded image
+  //CCSprite* pSprite = CCSprite::create(writablePath.c_str());
+
+  //cocos2d::FileUtils::getInstance()->getWritablePath();
+  // std::string writablePath = cocos2d::FileUtils::getInstance()->getWritablePath();
+  // std::string fileName = writablePath+"testing.png";
+  // cocos2d::log("%s", fileName.c_str());
+  // unsigned char *dat = (unsigned char *)RSTRING_PTR(StringValue(data));
+  // FILE* fp = fopen(fileName.c_str(), "wb");
+  // if (fp)
+  // {
+  //     size_t ret = fwrite(dat, 1, len, fp);
+  //     CCASSERT(ret != 0, "fwrite function returned zero value");
+  //     fclose(fp);
+  //     if (ret != 0)
+  //         cocos2d::log("Writing file to writable path succeed.");
+  // }
+
+  image->initWithImageData((unsigned char *)RSTRING_PTR(StringValue(data)), len);
+  texture->initWithImage(image);
+  sprite = cocos2d::Sprite::createWithTexture(texture);
+
+  //sprite = cocos2d::Sprite::create(fileName);
+  assert(sprite != NULL); // TODO raise exception
+  return rb_class_wrap_new((void *)sprite, rcv);
+}
+
 /// @group Actions
 
 static VALUE
@@ -181,7 +222,7 @@ need_physics(VALUE rcv)
 {
     auto physics = SPRITE(rcv)->getPhysicsBody();
     if (physics == NULL) {
-	rb_raise(rb_eRuntimeError, "receiver does not have a physics body"); 
+	rb_raise(rb_eRuntimeError, "receiver does not have a physics body");
     }
     return physics;
 }
@@ -405,6 +446,7 @@ Init_Sprite(void)
 
     rb_define_singleton_method(rb_cSprite, "load", sprite_load, 1);
     rb_define_singleton_method(rb_cSprite, "new", sprite_new, 1);
+    rb_define_singleton_method(rb_cSprite, "create_with_image", sprite_create_with_image, 2);
     rb_define_method(rb_cSprite, "move_by", sprite_move_by, 2);
     rb_define_method(rb_cSprite, "move_to", sprite_move_to, 2);
     rb_define_method(rb_cSprite, "blink", sprite_blink, 2);
