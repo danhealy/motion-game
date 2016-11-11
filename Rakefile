@@ -270,7 +270,8 @@ namespace 'build' do
   end
 
   desc 'Build everything'
-  task 'all' => ['build:ios', 'build:tvos', 'build:android']
+  #task 'all' => ['build:ios', 'build:tvos', 'build:android']
+  task 'all' => ['build:ios', 'build:android']
 end
 
 desc 'Generate lib/motion-game/shortcuts.rb'
@@ -445,6 +446,6 @@ end
 desc 'Create motion-game.gem file'
 task 'gem' do
   Rake::Task[:"build:all"].invoke
-  Rake::Task[:doc].invoke
+  #Rake::Task[:doc].invoke
   sh "gem build motion-game.gemspec"
 end
