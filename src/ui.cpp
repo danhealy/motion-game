@@ -329,7 +329,6 @@ text_horizontal_align_set(VALUE rcv, SEL sel, VALUE val)
     return val;
 }
 
-///////////HERE here
 /// @class TextField < Widget
 
 /// @group Constructors
@@ -527,7 +526,37 @@ textfield_horizontal_align_set(VALUE rcv, SEL sel, VALUE val)
     return val;
 }
 
-///END TEXTFIELD textfield TextField
+/// @property #placeholder_color
+/// @return [Color] color of the cursor part of the widget.
+
+static VALUE
+textfield_placeholder_color(VALUE rcv, SEL sel)
+{
+    return rb_cccolor4_to_obj(TEXTFIELD(rcv)->getPlaceHolderColor());
+}
+
+static VALUE
+textfield_placeholder_color_set(VALUE rcv, SEL sel, VALUE val)
+{
+    TEXTFIELD(rcv)->setPlaceHolderColor(rb_any_to_cccolor4(val));
+    return val;
+}
+
+/// @property #placeholder
+/// @return [String] placeholder text of the widget.
+
+static VALUE
+textfield_placeholder(VALUE rcv, SEL sel)
+{
+    return RSTRING_NEW(TEXTFIELD(rcv)->getPlaceHolder().c_str());
+}
+
+static VALUE
+textfield_placeholder_set(VALUE rcv, SEL sel, VALUE val)
+{
+    TEXTFIELD(rcv)->setPlaceHolder(RSTRING_PTR(StringValue(val)));
+    return val;
+}
 
 /// @class Button < Widget
 /// A button widget. The {#on_touch} method can be used to set a callback when
@@ -1179,8 +1208,8 @@ Init_UI(void)
 		rb_cUITextField = rb_define_class_under(rb_mMC, "TextField", rb_cUIWidget);
 
 		rb_define_singleton_method(rb_cUITextField, "new", textfield_new, -1);
-		rb_define_method(rb_cUITextField, "textfield", textfield_text, 0);
-		rb_define_method(rb_cUITextField, "textfield=", textfield_text_set, 1);
+		rb_define_method(rb_cUITextField, "text", textfield_text, 0);
+		rb_define_method(rb_cUITextField, "text=", textfield_text_set, 1);
 		rb_define_method(rb_cUITextField, "text_color", textfield_text_color, 0);
 		rb_define_method(rb_cUITextField, "text_color=", textfield_text_color_set, 1);
 		rb_define_method(rb_cUITextField, "font", textfield_font, 0);
@@ -1195,6 +1224,10 @@ Init_UI(void)
 		rb_define_method(rb_cUITextField, "horizontal_align", textfield_horizontal_align, 0);
 		rb_define_method(rb_cUITextField, "horizontal_align=",
 			textfield_horizontal_align_set, 1);
+		rb_define_method(rb_cUITextField, "placeholder_color", textfield_placeholder_color, 0);
+		rb_define_method(rb_cUITextField, "placeholder_color=", textfield_placeholder_color_set, 1);
+		rb_define_method(rb_cUITextField, "placeholder", textfield_placeholder, 0);
+		rb_define_method(rb_cUITextField, "placeholder=", textfield_placeholder_set, 1);
 
     rb_cUIButton = rb_define_class_under(rb_mMC, "Button", rb_cUIWidget);
 
