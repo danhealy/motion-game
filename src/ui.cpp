@@ -2,6 +2,7 @@
 
 #include <ui/UIWidget.h>
 #include <ui/UIText.h>
+#include <ui/UITextField.h>
 #include <ui/UIButton.h>
 #include <ui/UISlider.h>
 #include <ui/UIScrollView.h>
@@ -78,7 +79,7 @@ widget_highlighted_set(VALUE rcv, SEL sel, VALUE val)
 
 /// @method #on_touch
 /// Configures a block to be called when a touch event is received on the
-/// widget. 
+/// widget.
 /// @yield [Symbol] the given block will be called when the event
 ///   is received with a +Symbol+ that describes the type of event, which can
 ///   be +:begin+, +:move+, +:end+ or +:cancel+.
@@ -327,6 +328,206 @@ text_horizontal_align_set(VALUE rcv, SEL sel, VALUE val)
     TEXT(rcv)->setTextHorizontalAlignment(align);
     return val;
 }
+
+///////////HERE here
+/// @class TextField < Widget
+
+/// @group Constructors
+
+static VALUE rb_cUITextField = Qnil;
+
+#define TEXTFIELD(obj) _COCOS_WRAP_GET(obj, cocos2d::ui::TextField)
+
+/// @method #initialize(textfield='', font='', font_size=0)
+/// Creates a new TextField widget with optional content, font name and size.
+/// @param text [String] content for the textfield widget.
+/// @param font [String] name of the font the textfield widget should use.
+/// @param font_size [Integer] size of the font the textfield widget should use.
+
+static VALUE
+textfield_new(VALUE rcv, SEL sel, int argc, VALUE *argv)
+{
+    VALUE str = Qnil, font_name = Qnil, font_size = Qnil;
+
+    rb_scan_args(argc, argv, "03", &str, &font_name, &font_size);
+
+    cocos2d::ui::TextField *textfield = cocos2d::ui::TextField::create();
+
+    if (str != Qnil) {
+	textfield->setString(RSTRING_PTR(StringValue(str)));
+    }
+    if (font_name != Qnil) {
+	textfield->setFontName(RSTRING_PTR(StringValue(font_name)));
+    }
+    if (font_size != Qnil) {
+	textfield->setFontSize(NUM2LONG(font_size));
+    }
+
+    return rb_class_wrap_new(textfield, rcv);
+}
+
+/// @group Properties
+
+/// @property #text
+/// @return [String] content of the widget.
+
+static VALUE
+textfield_text(VALUE rcv, SEL sel)
+{
+    return RSTRING_NEW(TEXTFIELD(rcv)->getString().c_str());
+}
+
+static VALUE
+textfield_text_set(VALUE rcv, SEL sel, VALUE val)
+{
+    TEXTFIELD(rcv)->setString(RSTRING_PTR(StringValue(val)));
+    return val;
+}
+
+/// @property #text_color
+/// @return [Color] color of the text part of the widget.
+
+static VALUE
+textfield_text_color(VALUE rcv, SEL sel)
+{
+    return rb_cccolor4_to_obj(TEXTFIELD(rcv)->getTextColor());
+}
+
+static VALUE
+textfield_text_color_set(VALUE rcv, SEL sel, VALUE val)
+{
+    TEXTFIELD(rcv)->setTextColor(rb_any_to_cccolor4(val));
+    return val;
+}
+
+/// @property #font
+/// @return [String] name of the font used by the widget.
+
+static VALUE
+textfield_font(VALUE rcv, SEL sel)
+{
+    return RSTRING_NEW(TEXTFIELD(rcv)->getFontName().c_str());
+}
+
+static VALUE
+textfield_font_set(VALUE rcv, SEL sel, VALUE val)
+{
+    TEXTFIELD(rcv)->setFontName(RSTRING_PTR(StringValue(val)));
+    return val;
+}
+
+/// @property #font_size
+/// @return [Integer] size of the font used by the widget.
+
+static VALUE
+textfield_font_size(VALUE rcv, SEL sel)
+{
+    return LONG2NUM(TEXTFIELD(rcv)->getFontSize());
+}
+
+static VALUE
+textfield_font_size_set(VALUE rcv, SEL sel, VALUE val)
+{
+    TEXTFIELD(rcv)->setFontSize(NUM2LONG(val));
+    return val;
+}
+
+/// @property #area_size
+/// @return [Size] the textfield rendering area size.
+
+//static VALUE
+//textfield_area_size(VALUE rcv, SEL sel)
+//{
+//    return rb_ccsize_to_obj(TEXTFIELD(rcv)->getTextAreaSize());
+//}
+
+static VALUE
+textfield_area_size_set(VALUE rcv, SEL sel, VALUE val)
+{
+    TEXTFIELD(rcv)->setTextAreaSize(rb_any_to_ccsize(val));
+    return val;
+}
+
+/// @property #vertical_align
+/// @return [:top, :center, :bottom] the vertical alignment of the text.
+
+//static VALUE sym_top = Qnil, sym_center = Qnil, sym_bottom = Qnil,
+//	     sym_left = Qnil, sym_right = Qnil;
+
+static VALUE
+textfield_vertical_align(VALUE rcv, SEL sel)
+{
+    switch (TEXTFIELD(rcv)->getTextVerticalAlignment()) {
+	case cocos2d::TextVAlignment::TOP:
+	    return sym_top;
+	case cocos2d::TextVAlignment::CENTER:
+	    return sym_center;
+	case cocos2d::TextVAlignment::BOTTOM:
+	    return sym_bottom;
+	default:
+	    abort();
+    }
+}
+
+static VALUE
+textfield_vertical_align_set(VALUE rcv, SEL sel, VALUE val)
+{
+    cocos2d::TextVAlignment align;
+    if (val == sym_top) {
+	align = cocos2d::TextVAlignment::TOP;
+    }
+    else if (val == sym_center) {
+	align = cocos2d::TextVAlignment::CENTER;
+    }
+    else if (val == sym_bottom) {
+	align = cocos2d::TextVAlignment::BOTTOM;
+    }
+    else {
+	rb_raise(rb_eArgError, "expected :top, :center or :bottom symbol");
+    }
+    TEXTFIELD(rcv)->setTextVerticalAlignment(align);
+    return val;
+}
+
+/// @property #horizontal_align
+/// @return [:left, :center, :right] the horizontal alignment of the text.
+
+static VALUE
+textfield_horizontal_align(VALUE rcv, SEL sel)
+{
+    switch (TEXTFIELD(rcv)->getTextHorizontalAlignment()) {
+	case cocos2d::TextHAlignment::LEFT:
+	    return sym_left;
+	case cocos2d::TextHAlignment::CENTER:
+	    return sym_center;
+	case cocos2d::TextHAlignment::RIGHT:
+	    return sym_right;
+	default:
+	    abort();
+    }
+}
+
+static VALUE
+textfield_horizontal_align_set(VALUE rcv, SEL sel, VALUE val)
+{
+    cocos2d::TextHAlignment align;
+    if (val == sym_left) {
+	align = cocos2d::TextHAlignment::LEFT;
+    }
+    else if (val == sym_center) {
+	align = cocos2d::TextHAlignment::CENTER;
+    }
+    else if (val == sym_right) {
+	align = cocos2d::TextHAlignment::RIGHT;
+    }
+    else {
+	rb_raise(rb_eArgError, "expected :left, :center or :right symbol");
+    }
+    TEXTFIELD(rcv)->setTextHorizontalAlignment(align);
+    return val;
+}
+
+///END TEXTFIELD textfield TextField
 
 /// @class Button < Widget
 /// A button widget. The {#on_touch} method can be used to set a callback when
@@ -974,6 +1175,26 @@ Init_UI(void)
     sym_bottom = rb_name2sym("bottom");
     sym_left = rb_name2sym("left");
     sym_right = rb_name2sym("right");
+
+		rb_cUITextField = rb_define_class_under(rb_mMC, "TextField", rb_cUIWidget);
+
+		rb_define_singleton_method(rb_cUITextField, "new", textfield_new, -1);
+		rb_define_method(rb_cUITextField, "textfield", textfield_text, 0);
+		rb_define_method(rb_cUITextField, "textfield=", textfield_text_set, 1);
+		rb_define_method(rb_cUITextField, "text_color", textfield_text_color, 0);
+		rb_define_method(rb_cUITextField, "text_color=", textfield_text_color_set, 1);
+		rb_define_method(rb_cUITextField, "font", textfield_font, 0);
+		rb_define_method(rb_cUITextField, "font=", textfield_font_set, 1);
+		rb_define_method(rb_cUITextField, "font_size", textfield_font_size, 0);
+		rb_define_method(rb_cUITextField, "font_size=", textfield_font_size_set, 1);
+		//rb_define_method(rb_cUITextField, "area_size", textfield_area_size, 0);
+		rb_define_method(rb_cUITextField, "area_size=", textfield_area_size_set, 1);
+		rb_define_method(rb_cUITextField, "vertical_align", textfield_vertical_align, 0);
+		rb_define_method(rb_cUITextField, "vertical_align=",
+			textfield_vertical_align_set, 1);
+		rb_define_method(rb_cUITextField, "horizontal_align", textfield_horizontal_align, 0);
+		rb_define_method(rb_cUITextField, "horizontal_align=",
+			textfield_horizontal_align_set, 1);
 
     rb_cUIButton = rb_define_class_under(rb_mMC, "Button", rb_cUIWidget);
 
