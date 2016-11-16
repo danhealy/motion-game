@@ -87,7 +87,23 @@ sprite_create_with_image(VALUE rcv, SEL sel, VALUE data, VALUE len)
   // }
 
   image->initWithImageData((unsigned char *)RSTRING_PTR(StringValue(data)), len);
+  //if(image->getHeight() > 2048 || image->getWidth() > 2048){
+  //  cocos2d::log("w/h:%d,%d",image->getWidth(),image->getHeight());
+  //  float maxHeight = fmin(image->getHeight(),2048);
+  //  float maxWidth = fmin(image->getWidth(),2048);
+  //  cocos2d::Rect *rect = new cocos2d::Rect(0,0,maxWidth,maxHeight);
+  //  texture->initWithData(image->getData(), image->getDataLen(),
+  //      image->getRenderFormat(), maxWidth, maxHeight, cocos2d::Size(image->getWidth(), image->getHeight()));
+  //}
+  //else{
   texture->initWithImage(image);
+  //}
+
+
+  //cocos2d::Rect rect = cocos2d::Rect::ZERO;
+  //rect.size = texture->getContentSize();
+  //sprite = cocos2d::Sprite::createWithTexture(texture,rect);
+
   sprite = cocos2d::Sprite::createWithTexture(texture);
 
   //sprite = cocos2d::Sprite::create(fileName);
@@ -153,6 +169,13 @@ sprite_blink(VALUE rcv, SEL sel, VALUE blinks, VALUE interval)
 {
     return run_action(rcv, cocos2d::Blink::create(NUM2DBL(interval),
 		NUM2INT(blinks)));
+}
+
+static VALUE
+sprite_crop(VALUE rcv, SEL sel, VALUE x, VALUE y, VALUE width, VALUE height){
+      cocos2d::Rect *rect = new cocos2d::Rect(NUM2DBL(x),NUM2DBL(y),NUM2DBL(width),NUM2DBL(height));
+      SPRITE(rcv)->setTextureRect(*rect);
+      return rcv;
 }
 
 /// @method #animate(frame_names, delay, loops=1)
@@ -478,4 +501,5 @@ Init_Sprite(void)
 	    1);
     rb_define_method(rb_cSprite, "contact_mask", sprite_contact_mask, 0);
     rb_define_method(rb_cSprite, "contact_mask=", sprite_contact_mask_set, 1);
+    rb_define_method(rb_cSprite, "crop", sprite_crop, 4);
 }
