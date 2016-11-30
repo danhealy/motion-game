@@ -8,6 +8,7 @@
 #include <ui/UIScrollView.h>
 #include <ui/UIListView.h>
 #include <ui/UIWebView.h>
+#include <ui/UIEditBox/UIEditBox.h>
 
 static VALUE sym_absolute = Qnil, sym_relative = Qnil, sym_none = Qnil,
 	     sym_vertical = Qnil, sym_horizontal = Qnil, sym_both = Qnil;
@@ -557,6 +558,146 @@ textfield_placeholder_set(VALUE rcv, SEL sel, VALUE val)
     TEXTFIELD(rcv)->setPlaceHolder(RSTRING_PTR(StringValue(val)));
     return val;
 }
+
+//static VALUE
+//textfield_set_cursor_enabled(VALUE rcv, SEL sel, VALUE val)
+//{
+//    TEXTFIELD(rcv)->setCursorEnabled(RTEST(val));
+//    return val;
+//}
+
+/// @class EditBox < Widget
+
+/// @group Constructors
+
+static VALUE rb_cUIEditBox = Qnil;
+
+#define EDITBOX(obj) _COCOS_WRAP_GET(obj, cocos2d::ui::EditBox)
+
+/// @method #initialize(editbox='', font='', font_size=0)
+/// Creates a new EditBox widget with optional content, font name and size.
+/// @param text [String] content for the editbox widget.
+/// @param font [String] name of the font the editbox widget should use.
+/// @param font_size [Integer] size of the font the editbox widget should use.
+
+static VALUE
+editbox_new(VALUE rcv, SEL sel, int argc, VALUE *argv)
+{
+		VALUE size = Qnil, normalSprite = Qnil;
+
+    rb_scan_args(argc, argv, "02", &size, &normalSprite);
+		cocos2d::ui::Scale9Sprite *sprite =
+			cocos2d::ui::Scale9Sprite::create(RSTRING_PTR(StringValue(normalSprite)));
+    cocos2d::ui::EditBox *editbox = cocos2d::ui::EditBox::create(rb_any_to_ccsize(size),sprite);
+
+    return rb_class_wrap_new(editbox, rcv);
+}
+
+/// @group Properties
+
+/// @property #text
+/// @return [String] content of the widget.
+
+static VALUE
+editbox_text(VALUE rcv, SEL sel)
+{
+    return RSTRING_NEW(EDITBOX(rcv)->getText());
+}
+
+static VALUE
+editbox_text_set(VALUE rcv, SEL sel, VALUE val)
+{
+    EDITBOX(rcv)->setText(RSTRING_PTR(StringValue(val)));
+    return val;
+}
+
+/// @property #text_color
+/// @return [Color] color of the text part of the widget.
+
+// static VALUE
+// editbox_text_color(VALUE rcv, SEL sel)
+// {
+//     return rb_cccolor4_to_obj(EDITBOX(rcv)->getTextColor());
+// }
+
+static VALUE
+editbox_text_color_set(VALUE rcv, SEL sel, VALUE val)
+{
+    EDITBOX(rcv)->setFontColor(rb_any_to_cccolor4(val));
+    return val;
+}
+
+/// @property #font
+/// @return [String] name of the font used by the widget.
+
+// static VALUE
+// editbox_font(VALUE rcv, SEL sel)
+// {
+//     return RSTRING_NEW(EDITBOX(rcv)->getFontName().c_str());
+// }
+
+static VALUE
+editbox_font_set(VALUE rcv, SEL sel, VALUE val)
+{
+    EDITBOX(rcv)->setFontName(RSTRING_PTR(StringValue(val)));
+    return val;
+}
+
+/// @property #font_size
+/// @return [Integer] size of the font used by the widget.
+
+// static VALUE
+// editbox_font_size(VALUE rcv, SEL sel)
+// {
+//     return LONG2NUM(EDITBOX(rcv)->getFontSize());
+// }
+
+static VALUE
+editbox_font_size_set(VALUE rcv, SEL sel, VALUE val)
+{
+    EDITBOX(rcv)->setFontSize(NUM2LONG(val));
+    return val;
+}
+
+/// @property #placeholder_color
+/// @return [Color] color of the cursor part of the widget.
+
+// static VALUE
+// editbox_placeholder_color(VALUE rcv, SEL sel)
+// {
+//     return rb_cccolor4_to_obj(EDITBOX(rcv)->getPlaceHolderColor());
+// }
+
+static VALUE
+editbox_placeholder_color_set(VALUE rcv, SEL sel, VALUE val)
+{
+    EDITBOX(rcv)->setPlaceholderFontColor(rb_any_to_cccolor4(val));
+    return val;
+}
+
+/// @property #placeholder
+/// @return [String] placeholder text of the widget.
+
+static VALUE
+editbox_placeholder(VALUE rcv, SEL sel)
+{
+    return RSTRING_NEW(EDITBOX(rcv)->getPlaceHolder());
+}
+
+static VALUE
+editbox_placeholder_set(VALUE rcv, SEL sel, VALUE val)
+{
+    EDITBOX(rcv)->setPlaceHolder(RSTRING_PTR(StringValue(val)));
+    return val;
+}
+
+//static VALUE
+//editbox_set_cursor_enabled(VALUE rcv, SEL sel, VALUE val)
+//{
+//    EDITBOX(rcv)->setCursorEnabled(RTEST(val));
+//    return val;
+//}
+
 
 /// @class Button < Widget
 /// A button widget. The {#on_touch} method can be used to set a callback when
@@ -1228,6 +1369,24 @@ Init_UI(void)
 		rb_define_method(rb_cUITextField, "placeholder_color=", textfield_placeholder_color_set, 1);
 		rb_define_method(rb_cUITextField, "placeholder", textfield_placeholder, 0);
 		rb_define_method(rb_cUITextField, "placeholder=", textfield_placeholder_set, 1);
+		//rb_define_method(rb_cUITextField, "set_cursor_enabled", textfield_set_cursor_enabled, 1);
+
+		rb_cUIEditBox = rb_define_class_under(rb_mMC, "EditBox", rb_cUIWidget);
+
+		rb_define_singleton_method(rb_cUIEditBox, "new", editbox_new, -1);
+		rb_define_method(rb_cUIEditBox, "text", editbox_text, 0);
+		rb_define_method(rb_cUIEditBox, "text=", editbox_text_set, 1);
+		//rb_define_method(rb_cUIEditBox, "text_color", editbox_text_color, 0);
+		rb_define_method(rb_cUIEditBox, "text_color=", editbox_text_color_set, 1);
+		//rb_define_method(rb_cUIEditBox, "font", editbox_font, 0);
+		rb_define_method(rb_cUIEditBox, "font=", editbox_font_set, 1);
+		//rb_define_method(rb_cUIEditBox, "font_size", editbox_font_size, 0);
+		rb_define_method(rb_cUIEditBox, "font_size=", editbox_font_size_set, 1);
+		//rb_define_method(rb_cUIEditBox, "placeholder_color", editbox_placeholder_color, 0);
+		rb_define_method(rb_cUIEditBox, "placeholder_color=", editbox_placeholder_color_set, 1);
+		rb_define_method(rb_cUIEditBox, "placeholder", editbox_placeholder, 0);
+		rb_define_method(rb_cUIEditBox, "placeholder=", editbox_placeholder_set, 1);
+		//rb_define_method(rb_cUIEditBox, "set_cursor_enabled", editbox_set_cursor_enabled, 1);
 
     rb_cUIButton = rb_define_class_under(rb_mMC, "Button", rb_cUIWidget);
 
